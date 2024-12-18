@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Médicos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        /* Formulário */
+        form {
+            max-width: 500px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #28a745;
+            color: #fff;
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        /* Tabela */
+        table {
+            width: 90%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        table th, table td {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        table th {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        table tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .btn-editar {
+            background-color: #ffc107;
+            color: #fff;
+            padding: 5px 10px;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .btn-editar:hover {
+            background-color: #e0a800;
+        }
+
+        .btn-excluir {
+            background-color: #dc3545;
+            color: #fff;
+            padding: 5px 10px;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .btn-excluir:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+<h1>Cadastro de Médicos</h1>
+
+<!-- Formulário para cadastrar ou atualizar médicos -->
+<form id="cadastroForm">
+    <input type="hidden" id="medicoId">
+
+    <label for="nome">Nome</label>
+    <input type="text" id="nome" name="nome" placeholder="Nome do médico" required>
+
+    <label for="email">Email</label>
+    <input type="email" id="email" name="email" placeholder="Email do médico" required>
+
+    <label for="crm">CRM</label>
+    <input type="text" id="crm" name="crm" placeholder="CRM do médico" required>
+
+    <label for="telefone">Telefone</label>
+    <input type="text" id="telefone" name="telefone" placeholder="Telefone do médico" required>
+
+    <label for="especialidade">Especialidade</label>
+    <input type="text" id="especialidade" name="especialidade" placeholder="Especialidade do médico" required>
+
+    <h3>Endereço</h3>
+    <label for="logradouro">Logradouro</label>
+    <input type="text" id="logradouro" name="endereco.logradouro" placeholder="Rua, Avenida..." required>
+
+    <label for="bairro">Bairro</label>
+    <input type="text" id="bairro" name="endereco.bairro" placeholder="Bairro" required>
+
+    <label for="cep">CEP</label>
+    <input type="text" id="cep" name="endereco.cep" placeholder="CEP" required>
+
+    <label for="cidade">Cidade</label>
+    <input type="text" id="cidade" name="endereco.cidade" placeholder="Cidade" required>
+
+    <label for="uf">UF</label>
+    <input type="text" id="uf" name="endereco.uf" placeholder="UF" required>
+
+    <label for="numero">Número</label>
+    <input type="text" id="numero" name="endereco.numero" placeholder="Número" required>
+
+    <label for="complemento">Complemento</label>
+    <input type="text" id="complemento" name="endereco.complemento" placeholder="Complemento">
+
+    <button type="submit">Salvar</button>
+</form>
+
+<h2 style="text-align: center;">Lista de Médicos</h2>
+<table>
+    <thead>
+    <tr>
+        <th>Id</th>
+        <th>Nome</th>
+        <th>Email</th>
+        <th>Telefone</th>
+        <th>Especialidade</th>
+        <th>Ações</th>
+    </tr>
+    </thead>
+    <tbody id="listaMedicos"></tbody>
+</table>
+
+<script>
+    document.getElementById('cadastroForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const medicoId = document.getElementById('medicoId').value;
+        const formData = {
+            nome: document.getElementById('nome').value,
+            email: document.getElementById('email').value,
+            crm: document.getElementById('crm').value,
+            telefone: document.getElementById('telefone').value,
+            especialidade: document.getElementById('especialidade').value,
+            endereco: {
+                logradouro: document.getElementById('logradouro').value,
+                bairro: document.getElementById('bairro').value,
+                cep: document.getElementById('cep').value,
+                cidade: document.getElementById('cidade').value,
+                uf: document.getElementById('uf').value,
+                numero: document.getElementById('numero').value,
+                complemento: document.getElementById('complemento').value
+            }
+        };
+
+        try {
+            const url = medicoId ? `http://localhost:8080/cadastros/${medicoId}` : 'http://localhost:8080/cadastros';
+            const method = medicoId ? 'PUT' : 'POST';
+
+            const response = await fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
+
+            if (response.ok) {
+                alert(medicoId ? 'Médico atualizado com sucesso!' : 'Médico cadastrado com sucesso!');
+                listarMedicos();
+                document.getElementById('cadastroForm').reset();
+                document.getElementById('medicoId').value = '';
+            } else {
+                const errorMessage = await response.text();
+                alert(`Erro ao salvar médico: ${errorMessage}`);
+            }
+        } catch (error) {
+            console.error('Erro:', error);
+            alert('Falha ao conectar com o servidor.');
+        }
+
+    });
+
+   // Função para listar médicos via GET
+async function listarMedicos() {
+    const tbody = document.getElementById('listaMedicos');
+    tbody.innerHTML = '';
+
+    try {
+        const response = await fetch('http://localhost:8080/cadastros');
+        if (response.ok) {
+            const medicos = await response.json();
+            medicos.forEach(medico => {
+                const row = `
+                    <tr>
+                       <td>${medico.id}</td>
+                        <td>${medico.nome}</td>
+                        <td>${medico.email}</td>
+                        <td>${medico.telefone}</td>
+                        <td>${medico.especialidade}</td>
+                        <td>
+                            <button onclick="editarMedico(${medico.id})">Editar</button>
+                            <button onclick="excluirMedico(${medico.id})">Excluir</button>
+                        </td>
+                    </tr>
+                `;
+                tbody.insertAdjacentHTML('beforeend', row);
+            });
+        } else {
+            alert('Erro ao buscar lista de médicos!');
+        }
+    } catch (error) {
+        console.error('Erro:', error);
+        alert('Falha ao conectar com o servidor.');
+    }
+}
+
+
+    // Função de edição
+function editarMedico(id) {
+    if (!id) {
+        console.error("ID do médico não fornecido.");
+        return;
+    }
+    fetch(`http://localhost:8080/cadastros/${id}`)
+        .then(response => response.json())
+        .then(medico => {
+            document.getElementById('medicoId').value = medico.id;
+            document.getElementById('nome').value = medico.nome;
+            document.getElementById('email').value = medico.email;
+            document.getElementById('crm').value = medico.crm;
+            document.getElementById('telefone').value = medico.telefone;
+            document.getElementById('especialidade').value = medico.especialidade;
+            document.getElementById('logradouro').value = medico.endereco.logradouro;
+            document.getElementById('bairro').value = medico.endereco.bairro;
+            document.getElementById('cep').value = medico.endereco.cep;
+            document.getElementById('cidade').value = medico.endereco.cidade;
+            document.getElementById('uf').value = medico.endereco.uf;
+            document.getElementById('numero').value = medico.endereco.numero;
+            document.getElementById('complemento').value = medico.endereco.complemento;
+        })
+        .catch(error => {
+            console.error("Erro ao editar médico:", error);
+            alert('Erro ao editar médico.');
+        });
+}
+
+// Função de exclusão
+async function excluirMedico(id) {
+    if (!id) {
+        console.error("ID do médico não fornecido.");
+        return;
+    }
+
+    if (confirm('Deseja excluir este médico?')) {
+        try {
+            const response = await fetch(`http://localhost:8080/cadastros/${id}`, {
+                method: 'DELETE'
+            });
+            if (response.ok) {
+                alert('Médico excluído com sucesso!');
+                listarMedicos();
+            } else {
+                alert('Erro ao excluir médico.');
+            }
+        } catch (error) {
+            console.error('Erro ao excluir médico:', error);
+            alert('Erro ao excluir médico.');
+        }
+    }
+}
+
+    // Inicializa a lista de médicos
+    listarMedicos();
+</script>
+
+</body>
+</html>
